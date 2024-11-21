@@ -1,0 +1,94 @@
+exclude_patterns:
+  # 测试相关
+  - "**/*.test.*"
+  - "**/*.spec.*"
+  - "**/test/**"
+  - "**/tests/**"
+  - "**/example/**"
+  - "**/examples/**"
+
+  # 构建和缓存目录
+  - "**/build/**"
+  - "**/dist/**"
+  - "**/node_modules/**"
+  - "**/__pycache__/**"
+  - "**/.pytest_cache/**"
+  - "**/.mypy_cache/**"
+  - "**/.ruff_cache/**"
+  - "**/.coverage/**"
+  - "**/coverage/**"
+
+  # IDE和编辑器
+  - "**/.idea/**"
+  - "**/.vscode/**"
+  - "**/.vs/**"
+
+  # 版本控制
+  - "**/.git/**"
+  - "**/.gitignore"
+  - "**/.svn/**"
+  - "**/.hg/**"
+
+  # 环境和依赖
+  - "**/venv/**"
+  - "**/.env"
+  - "**/requirements.txt"
+
+  # Lock 文件
+  - "**/poetry.lock"
+  - "**/package-lock.json"
+  - "**/yarn.lock"
+  - "**/Gemfile.lock"
+  - "**/Cargo.lock"
+  - "**/composer.lock"
+  - "**/mix.lock"
+  - "**/*.lock"
+
+exclude_extensions:
+  # 编译后的文件
+  - ".pyc"
+  - ".pyo"
+  - ".pyd"
+  - ".so"
+  - ".dll"
+  - ".class"
+  - ".jar"
+  - ".exe"
+
+  # 二进制和媒体
+  - ".png"
+  - ".jpg"
+  - ".jpeg"
+  - ".gif"
+  - ".bmp"
+  - ".ico"
+  - ".mp3"
+  - ".mp4"
+  - ".wav"
+  - ".avi"
+
+  # 二进制文档
+  - ".pdf"
+  - ".doc"
+  - ".docx"
+
+  # 数据文件
+  - ".db"
+  - ".sqlite"
+  - ".dat"
+
+exclude_files:
+  # 锁定文件
+  - "poetry.lock"
+  - "package-lock.json"
+  - "yarn.lock"
+  - "Gemfile.lock"
+  - "Cargo.lock"
+
+  # 许可和文档
+  - "LICENSE"
+  - "LICENSE.txt"
+  - "LICENSE.md"
+
+  # 测试数据
+  - "mock_data.txt"
