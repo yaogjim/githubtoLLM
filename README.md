@@ -61,7 +61,7 @@ exclude_files:
 python -m repo2llm.app
 ```
 
-访问 `http://localhost:5000` 开始使用。
+访问 `http://localhost:8080` 开始使用。
 
 ## 使用方法
 
