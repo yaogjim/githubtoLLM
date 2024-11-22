@@ -63,66 +63,48 @@ class GitHubHandler:
         """通过克隆方式获取仓库内容"""
         logger.info(f"开始克隆仓库_get_repo_contents_clone: {repo_url}")
         
-        # 创建输出目录
-        output_dir = Path(__file__).parent.parent.parent / 'output' / 'cloned_repos'
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # 使用仓库名作为子目录
-        repo_name = repo_url.rstrip('/').split('/')[-1]
-        repo_dir = output_dir / repo_name
-        
-        try:
-            # 如果目录已存在，先删除
-            if repo_dir.exists():
-                import shutil
-                shutil.rmtree(repo_dir)
-            
-            # 克隆仓库
-            if self.token:
-                logger.info("使用认证令牌克隆仓库")
-                auth_url = repo_url.replace('https://', f'https://oauth2:{self.token}@')
-                repo = git.Repo.clone_from(auth_url, repo_dir, depth=1 if self.shallow_clone else None)
-            else:
-                logger.info("使用匿名方式克隆公开仓库")
-                repo = git.Repo.clone_from(repo_url, repo_dir, depth=1 if self.shallow_clone else None)
-            logger.info("仓库克隆完成")
-            
-            # 遍历文件
-            all_contents = []
-            for root, _, files in os.walk(repo_dir):
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    rel_path = os.path.relpath(file_path, repo_dir)
-                    
-                    # 跳过 .git 目录
-                    if '.git' in rel_path.split(os.sep):
-                        continue
-                    
-                    # 读取文件内容
-                    try:
-                        # 先尝试以文本方式读取
-                        with open(file_path, 'r', encoding='utf-8') as f:
-                            content = f.read()
-                    except UnicodeDecodeError:
-                        # 如果失败，跳过二进制文件
-                        logger.debug(f"跳过二进制文件: {rel_path}")
-                        continue
-                    except Exception as e:
-                        logger.warning(f"无法读取文件 {rel_path}: {str(e)}")
-                        continue
-                    
-                    all_contents.append({
-                        'path': rel_path,
-                        'type': 'file',
-                        'content': content,
-                        'download_url': None  # 本地文件没有下载URL
-                    })
-            
-            return all_contents
+        # 创建临时目录
+        with tempfile.TemporaryDirectory() as temp_dir:
+            try:
+                # 克隆仓库
+                if self.token:
+                    logger.info("使用认证令牌克隆仓库")
+                    auth_url = repo_url.replace('https://', f'https://oauth2:{self.token}@')
+                    logger.debug(f"克隆目标目录: {temp_dir}")
+                    repo = git.Repo.clone_from(auth_url, temp_dir, depth=1)
+                else:
+                    logger.info("使用匿名方式克隆公开仓库")
+                    logger.debug(f"克隆目标目录: {temp_dir}")
+                    repo = git.Repo.clone_from(repo_url, temp_dir, depth=1)
+                logger.info("仓库克隆完成")
                 
-        except Exception as e:
-            logger.error(f"克隆仓库失败: {str(e)}")
-            raise
+                # 遍历文件
+                all_contents = []
+                for root, _, files in os.walk(temp_dir):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        rel_path = os.path.relpath(file_path, temp_dir)
+                        
+                        # 读取文件内容
+                        try:
+                            with open(file_path, 'r', encoding='utf-8') as f:
+                                content = f.read()
+                            
+                            all_contents.append({
+                                'path': rel_path,
+                                'type': 'file',
+                                'content': content,
+                                'download_url': None  # 本地文件没有下载URL
+                            })
+                        except Exception as e:
+                            logger.warning(f"无法读取文件 {rel_path}: {str(e)}")
+                            continue
+                
+                return all_contents
+                
+            except Exception as e:
+                logger.error(f"克隆仓库失败: {str(e)}")
+                raise
     
     def get_file_content(self, file_url: str) -> str:
         """获取文件内容"""

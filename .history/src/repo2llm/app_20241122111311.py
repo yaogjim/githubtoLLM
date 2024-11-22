@@ -48,16 +48,13 @@ def process():
     try:
         logger.info("开始处理新的仓库请求")
         repo_url = request.json['repo_url']
-        # 获取请求中的模式，如果没有则使用配置文件中的默认值
-        mode = request.json.get('mode', None)
-        logger.info(f"处理仓库: {repo_url}, 模式: {mode or '默认'}")
+        logger.info(f"处理仓库: {repo_url}")
         
         # 初始化组件
         repo2llm = Repo2LLM()
-        # 使用配置初始化 GitHubHandler，如果有指定模式则使用指定的
         github_handler = GitHubHandler(
             token=None,
-            mode=mode or repo2llm.github_handler_config['mode'],
+            mode=repo2llm.github_handler_config['mode'],
             shallow_clone=repo2llm.github_handler_config['shallow_clone']
         )
         markdown_converter = MarkdownConverter()

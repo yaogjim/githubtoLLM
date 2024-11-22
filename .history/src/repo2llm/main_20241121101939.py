@@ -11,10 +11,6 @@ class Repo2LLM:
         self.config = self._load_config(config_path)
         self.excluded_patterns = set(self.config.get('exclude_patterns', []))
         self.excluded_extensions = set(self.config.get('exclude_extensions', []))
-        self.github_handler_config = self.config.get('github_handler', {
-            'mode': 'http',
-            'shallow_clone': True
-        })
     
     def _load_config(self, config_path: str) -> dict:
         if not config_path:

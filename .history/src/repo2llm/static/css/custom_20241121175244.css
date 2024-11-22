@@ -1,0 +1,72 @@
+/* 结果区域样式 */
+.result-header {
+    @apply sticky top-0 bg-white dark:bg-gray-800 z-10 py-2;
+    border-bottom: 1px solid theme('colors.gray.200');
+}
+
+/* 统一的按钮基础样式 */
+.btn-primary {
+    @apply px-6 py-2 rounded-lg font-medium
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+/* Process 按钮样式 */
+#process-btn {
+    @apply btn-primary bg-gray-100 hover:bg-gray-200
+           dark:bg-gray-700 dark:hover:bg-gray-600;
+}
+
+/* Copy 按钮样式 */
+#copy-btn {
+    @apply btn-primary bg-gray-100 hover:bg-gray-200
+           dark:bg-gray-700 dark:hover:bg-gray-600;
+}
+
+/* Download 按钮样式 */
+#download-btn {
+    @apply btn-primary bg-green-500 hover:bg-green-600 text-white
+           dark:bg-green-600 dark:hover:bg-green-700;
+}
+
+/* 按钮激活状态 */
+.btn-primary:active {
+    @apply transform scale-95;
+}
+
+/* 预览容器 */
+.preview-container {
+    @apply mt-4 p-4 bg-gray-50 rounded-lg
+           border border-gray-200
+           dark:bg-gray-800 dark:border-gray-700;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* 预览内容 */
+.preview-content {
+    @apply text-sm leading-relaxed whitespace-pre-wrap
+           text-gray-800 dark:text-gray-200;
+}
+
+/* 自定义滚动条 */
+.custom-scrollbar {
+    @apply scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100
+           dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800;
+}
+
+/* 下载按钮加载状态 */
+.btn-primary.loading {
+    @apply opacity-75 cursor-not-allowed;
+    pointer-events: none;
+}
+
+/* 下载按钮悬停效果 */
+#download-btn:hover {
+    @apply transform scale-105;
+}
+
+/* 下载按钮激活状态 */
+#download-btn:active {
+    @apply transform scale-95;
+} 

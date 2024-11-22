@@ -48,67 +48,59 @@ def process():
     try:
         logger.info("开始处理新的仓库请求")
         repo_url = request.json['repo_url']
-        # 获取请求中的模式，如果没有则使用配置文件中的默认值
-        mode = request.json.get('mode', None)
-        logger.info(f"处理仓库: {repo_url}, 模式: {mode or '默认'}")
+        logger.info(f"处理仓库: {repo_url}")
         
         # 初始化组件
         repo2llm = Repo2LLM()
-        # 使用配置初始化 GitHubHandler，如果有指定模式则使用指定的
+        # 使用配置初始化 GitHubHandler
         github_handler = GitHubHandler(
-            token=None,
-            mode=mode or repo2llm.github_handler_config['mode'],
+            token=None,  # 如果有token的话这里需要传入
+            mode=repo2llm.github_handler_config['mode'],
             shallow_clone=repo2llm.github_handler_config['shallow_clone']
         )
         markdown_converter = MarkdownConverter()
         logger.info("组件初始化完成")
         
+        # 获取仓库内容
+        logger.info("开始获取仓库内容")
+        repo_contents = github_handler.get_repo_contents(repo_url)
+        processed_files = []
+
+        # 过滤文件
+        logger.info("开始过滤需要处理的文件")
+        valid_files = [
+            item for item in repo_contents 
+            if item['type'] == 'file' and not repo2llm.should_exclude(item['path'])
+        ]
+        total_files = len(valid_files)
+        logger.info(f"找到 {total_files} 个需要处理的文件")
+        processed_count = 0
+        
         def generate():
+            nonlocal processed_count
             try:
-                # 获取仓库内容
-                logger.info("开始获取仓库内容")
-                repo_contents = github_handler.get_repo_contents(repo_url)
-                
-                # 过滤文件
-                logger.info("开始过滤需要处理的文件")
-                valid_files = [
-                    item for item in repo_contents 
-                    if item['type'] == 'file' and not repo2llm.should_exclude(item['path'])
-                ]
-                total_files = len(valid_files)
-                logger.info(f"找到 {total_files} 个需要处理的文件")
-                
                 # 开始处理的消息
                 yield json.dumps({"type": "start", "total": total_files}) + '\n'
                 
-                processed_files = []
-                processed_count = 0
-                
-                # 处理文件
+                # 只遍历已过滤的文件列表
                 for item in valid_files:
                     try:
-                        processed_count += 1
-                        if 'content' in item:
-                            # 克隆模式下，内容已经在item中
-                            content = item['content']
-                        else:
-                            # HTTP模式下，需要通过download_url获取内容
-                            content = github_handler.get_file_content(item['download_url'])
-                            
+                        content = github_handler.get_file_content(item['download_url'])
                         processed_files.append({
                             'path': item['path'],
                             'content': content
                         })
-                        
+                        processed_count += 1
+                        print(f"Processing {item['path']} ({processed_count}/{total_files})")
+                        # 进度消息
                         yield json.dumps({
                             "type": "progress",
                             "file": item['path'],
                             "current": processed_count,
                             "total": total_files
                         }) + '\n'
-                        
                     except Exception as e:
-                        logger.error(f"处理文件 {item['path']} 时出错: {str(e)}")
+                        print(f"Error processing {item['path']}: {str(e)}")
                         yield json.dumps({
                             "type": "error",
                             "file": item['path'],
@@ -116,38 +108,37 @@ def process():
                         }) + '\n'
                 
                 # 生成最终的 Markdown
-                logger.info("生成 Markdown 输出...")
+                print("Generating markdown output...")
                 markdown_output = markdown_converter.convert_to_markdown(processed_files)
-                
-                # 生成文件名
                 owner_repo = repo_url.rstrip('/').split('/')[-2:]
                 filename = f"{owner_repo[0]}_{owner_repo[1]}.md"
                 output_path = OUTPUT_DIR / filename
                 
-                # 保存文件
                 with open(output_path, 'w', encoding='utf-8') as f:
                     f.write(markdown_output)
                 
-                # 完成消息
-                yield json.dumps({
+                print(f"Completed processing. Total files: {processed_count}")
+                # 修改完成消息的发送方式
+                response_data = {
                     "type": "complete",
                     "filename": filename,
                     "content": markdown_output,
                     "total_processed": processed_count,
                     "total": total_files
-                }) + '\n'
+                }
+                yield json.dumps(response_data, ensure_ascii=False).encode('utf-8') + b'\n'
                 
             except Exception as e:
-                logger.error(f"处理过程中出错: {str(e)}")
+                print(f"Error in generate: {str(e)}")
                 yield json.dumps({
                     "type": "error",
                     "error": str(e)
                 }) + '\n'
-        
+            
         return Response(generate(), mimetype='text/event-stream')
         
     except Exception as e:
-        logger.error(f"处理仓库时出错: {str(e)}")
+        print(f"Error processing repository: {str(e)}")
         return jsonify({
             'status': 'error',
             'message': str(e)

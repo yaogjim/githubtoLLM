@@ -48,16 +48,13 @@ def process():
     try:
         logger.info("开始处理新的仓库请求")
         repo_url = request.json['repo_url']
-        # 获取请求中的模式，如果没有则使用配置文件中的默认值
-        mode = request.json.get('mode', None)
-        logger.info(f"处理仓库: {repo_url}, 模式: {mode or '默认'}")
+        logger.info(f"处理仓库: {repo_url}")
         
         # 初始化组件
         repo2llm = Repo2LLM()
-        # 使用配置初始化 GitHubHandler，如果有指定模式则使用指定的
         github_handler = GitHubHandler(
             token=None,
-            mode=mode or repo2llm.github_handler_config['mode'],
+            mode=repo2llm.github_handler_config['mode'],
             shallow_clone=repo2llm.github_handler_config['shallow_clone']
         )
         markdown_converter = MarkdownConverter()
@@ -88,18 +85,13 @@ def process():
                 for item in valid_files:
                     try:
                         processed_count += 1
-                        if 'content' in item:
-                            # 克隆模式下，内容已经在item中
-                            content = item['content']
-                        else:
-                            # HTTP模式下，需要通过download_url获取内容
-                            content = github_handler.get_file_content(item['download_url'])
-                            
+                        # 文件内容已经在item中（克隆模式）
                         processed_files.append({
                             'path': item['path'],
-                            'content': content
+                            'content': item['content']
                         })
                         
+                        # 进度消息
                         yield json.dumps({
                             "type": "progress",
                             "file": item['path'],

@@ -21,8 +21,7 @@ const GitHubLLM = {
             preview: document.getElementById('preview'),
             resultFilename: document.getElementById('result-filename'),
             downloadBtn: document.getElementById('download-btn'),
-            copyBtn: document.getElementById('copy-btn'),
-            modeRadios: document.getElementsByName('mode')
+            copyBtn: document.getElementById('copy-btn')
         };
 
         this.bindEvents();
@@ -53,19 +52,12 @@ const GitHubLLM = {
                 return;
             }
 
-            // 获取选择的模式
-            let selectedMode = Array.from(this.elements.modeRadios)
-                .find(radio => radio.checked)?.value;
-            
             this.showLoading();
             console.log('开始请求 /process 接口...');
             const response = await fetch('/process', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    repo_url: this.elements.repoUrl.value,
-                    mode: selectedMode === 'default' ? null : selectedMode // 如果是默认模式，则不发送mode参数
-                })
+                body: JSON.stringify({ repo_url: this.elements.repoUrl.value })
             });
 
             if (!response.ok) {
@@ -234,7 +226,7 @@ const GitHubLLM = {
                 this.elements.copyBtn.classList.remove('bg-green-100');
             }, 2000);
         } catch (err) {
-            console.error('复制失败:', err);
+            console.error('复制失败2:', err);
             this.showError('复制失败，请手动复制');
         }
     },
@@ -290,7 +282,7 @@ const GitHubLLM = {
             }
         } catch (error) {
             console.error('下载失败:', error);
-            this.showError(`���载失败: ${error.message}`);
+            this.showError(`下载失败: ${error.message}`);
         } finally {
             // 恢复按钮状态
             btn.textContent = originalText;

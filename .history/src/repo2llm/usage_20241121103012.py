@@ -13,11 +13,7 @@ def process_repo(repo_url: str) -> str:
     for item in repo_contents:
         try:
             if item['type'] == 'file' and not repo2llm.should_exclude(item['path']):
-                if 'content' in item:
-                    content = item['content']
-                else:
-                    content = github_handler.get_file_content(item['download_url'])
-                    
+                content = github_handler.get_file_content(item['download_url'])
                 processed_files.append({
                     'path': item['path'],
                     'content': content

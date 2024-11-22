@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub → LLM</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+</head>
+<body>
+    <div class="max-w-3xl mx-auto px-4 py-10">
+        <h1 class="text-3xl font-semibold text-gray-900 mb-4">GitHub → LLM</h1>
+        
+        <p class="text-lg text-gray-900 mb-8">
+            A tool to convert GitHub links into a format ready for LLMs.
+        </p>
+
+        <div class="mb-8">
+            <div class="flex gap-3">
+                <input 
+                    type="text" 
+                    id="repo-url" 
+                    placeholder="https://github.com/username/repository"
+                    class="flex-1 px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                <button 
+                    id="process-btn"
+                    class="inline-flex items-center px-6 py-3 bg-gray-50 border border-gray-300 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <span class="mr-2">→</span>
+                    Process
+                </button>
+                <button
+                    id="test-btn" 
+                    onclick="document.getElementById('repo-url').value='https://github.com/yaogjim/knowledgeMan'"
+                    class="inline-flex items-center px-6 py-3 bg-gray-50 border border-gray-300 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    Test
+                </button>
+            </div>
+        </div>
+
+        <p class="text-gray-600">
+            Process any GitHub link. Projects, files, or folders.
+        </p>
+
+        <div id="loading" class="hidden">
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                <div id="progress" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div id="progress-text" class="text-sm text-gray-600 text-center"></div>
+        </div>
+
+        <div id="error" class="hidden text-red-600 my-4"></div>
+
+        <div id="result" class="hidden mt-8">
+            <div class="bg-gray-50 rounded-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="result-filename" class="text-lg font-semibold text-gray-900"></h2>
+                    <div class="flex gap-2">
+                        <button id="copy-btn" class="btn-primary">
+                            Copy
+                        </button>
+                        <button id="download-btn" type="button" class="btn-primary" onclick="GitHubLLM.downloadFile()">
+                            Download
+                        </button>
+                    </div>
+                </div>
+                <!-- 添加 markdown 样式支持 -->
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
+                <div id="preview" class="bg-white border border-gray-200 rounded-md p-4 text-sm overflow-x-auto max-h-[600px] overflow-y-auto markdown-body prose prose-sm max-w-none"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自定义 JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // 添加调试信息
+        console.log('Page loaded');
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded');
+            console.log('Process button:', document.getElementById('process-btn'));
+        });
+    </script>
+</body>
+</html> 

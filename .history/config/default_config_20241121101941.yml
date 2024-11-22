@@ -92,7 +92,3 @@ exclude_files:
 
   # 测试数据
   - "mock_data.txt"
-
-github_handler:
-  mode: "clone" # 可选值: "http" 或 "clone"
-  shallow_clone: true # 是否使用浅克隆
