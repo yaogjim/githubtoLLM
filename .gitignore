@@ -1,0 +1,30 @@
+# 忽略单个文件
+
+
+# 忽略特定扩展名
+*.log
+*.tmp
+*.swp
+
+# 忽略目录
+node_modules/
+dist/
+build/
+output/
+.vscode/
+.history/
+
+# 忽略目录下所有文件
+logs/*
+
+# 保留目录但忽略内容
+logs/*
+!logs/.gitkeep
+
+# 忽略特定路径的文件
+debug.log
+logs/debug.log
+
+# 使用 ! 取消忽略
+*.txt        # 忽略所有 .txt 文件
+!README.txt  # 但不忽略 README.txt
